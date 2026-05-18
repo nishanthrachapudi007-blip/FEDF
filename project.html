@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>GroupFly – Group Booking Management System</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+<style>
+/* ════════════════════════════════════════
+   BASE / RESET
+════════════════════════════════════════ */
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --navy:#0A1628;--navyM:#0D1F3C;--navyL:#162847;
+  --sky:#1E90FF;--skyL:#4FABFF;--skyG:#7BC8FF;
+  --gold:#F5A623;--goldL:#FFD080;
+  --white:#fff;--muted:#8BA4C8;--mutedD:#4A6A94;
+  --card:rgba(255,255,255,0.05);--cardB:rgba(255,255,255,0.10);
+  --success:#27AE60;--error:#E74C3C;
+}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans','Segoe UI',sans-serif;background:var(--navy);color:var(--white);min-height:100vh;overflow-x:hidden;}
+
+@keyframes fadeUp   {from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:translateY(0)}}
+@keyframes float    {0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+@keyframes pulse    {0%,100%{opacity:.5}50%{opacity:1}}
+@keyframes seatPop  {0%{transform:scale(0);opacity:0}70%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
+@keyframes spin     {to{transform:rotate(360deg)}}
+@keyframes shake    {0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+
+.fu{opacity:0;animation:fadeUp .65s ease forwards;}
+.fu-0{animation-delay:0ms}.fu-1{animation-delay:120ms}.fu-2{animation-delay:240ms}
+.fu-3{animation-delay:360ms}.fu-4{animation-delay:500ms}
+
+.glb{cursor:pointer;transition:all .2s ease;border:none;font-family:'DM Sans',sans-serif;}
+.glb:hover{filter:brightness(1.12);transform:translateY(-2px)}.glb:active{transform:translateY(0)}
+.ch{transition:transform .25s ease,box-shadow .25s ease;}
+.ch:hover{transform:translateY(-5px);box-shadow:0 18px 36px rgba(30,144,255,.15);}
+.nl{color:var(--muted);font-size:14px;font-weight:500;transition:color .2s;cursor:pointer;text-decoration:none;}
+.nl:hover{color:#fff}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--navy)}
+::-webkit-scrollbar-thumb{background:var(--mutedD);border-radius:3px}
+
+/* ════════════════════════════════════════
+   NAV
+════════════════════════════════════════ */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;height:62px;display:flex;align-items:center;justify-content:space-between;padding:0 clamp(1rem,4vw,3rem);transition:all .3s ease;}
+nav.scrolled{background:rgba(10,22,40,0.94);backdrop-filter:blur(14px);border-bottom:1px solid var(--cardB);}
+.nav-logo{display:flex;align-items:center;gap:10px;cursor:pointer;}
+.nav-logo-icon{width:32px;height:32px;border-radius:8px;background:var(--sky);display:flex;align-items:center;justify-content:center;font-size:16px;}
+.nav-logo-text{font-family:'Syne',sans-serif;font-weight:800;font-size:18px;letter-spacing:-.3px;}
+.nav-links{display:flex;gap:28px;}
+.nav-actions{display:flex;gap:10px;align-items:center;}
+.nav-login{background:transparent;color:var(--white);border:1px solid var(--cardB);border-radius:8px;padding:7px 18px;font-size:14px;font-weight:500;transition:all .2s;}
+.nav-login:hover{border-color:var(--skyL);color:var(--skyL);transform:translateY(-2px);}
+.nav-cta{background:var(--sky);color:#fff;border-radius:8px;padding:8px 20px;font-size:14px;font-weight:600;}
+
+/* ════════════════════════════════════════
+   HERO
+════════════════════════════════════════ */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:110px clamp(1rem,4vw,3rem) 72px;position:relative;overflow:hidden;text-align:center;}
+.hero-orb1{position:absolute;top:12%;left:6%;width:360px;height:360px;border-radius:50%;background:radial-gradient(circle,rgba(30,144,255,.13) 0%,transparent 70%);pointer-events:none;}
+.hero-orb2{position:absolute;bottom:15%;right:5%;width:240px;height:240px;border-radius:50%;background:radial-gradient(circle,rgba(245,166,35,.09) 0%,transparent 70%);pointer-events:none;}
+.seat-grid{position:absolute;top:15%;right:4%;display:grid;grid-template-columns:repeat(6,18px);gap:6px;opacity:.72;animation:float 5s ease-in-out infinite;}
+.seat{width:17px;height:19px;border-radius:4px;}
+.seat.empty{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.18);}
+.seat.filled{background:var(--sky);border:1px solid var(--skyL);}
+.hero-inner{max-width:720px;position:relative;z-index:1;}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(30,144,255,.12);border:1px solid rgba(30,144,255,.3);border-radius:100px;padding:6px 16px;margin-bottom:26px;}
+.hero-badge-dot{width:8px;height:8px;border-radius:50%;background:var(--sky);animation:pulse 1.5s ease infinite;display:inline-block;}
+.hero-badge-text{font-size:13px;color:var(--skyL);font-weight:500;}
+.hero-h1{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(2.1rem,5.5vw,3.7rem);line-height:1.07;letter-spacing:-1.5px;margin-bottom:18px;}
+.hero-h1 .grad{background:linear-gradient(90deg,var(--sky),var(--skyG));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero-p{font-size:clamp(.9rem,2vw,1.05rem);color:var(--muted);line-height:1.8;max-width:520px;margin:0 auto 34px;}
+.hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:50px;}
+.btn-primary{background:var(--sky);color:#fff;border-radius:10px;padding:13px 28px;font-size:15px;font-weight:600;}
+.btn-outline{background:transparent;color:#fff;border:1px solid var(--cardB);border-radius:10px;padding:13px 28px;font-size:15px;font-weight:500;}
+.booking-card{width:100%;max-width:650px;background:var(--card);border:1px solid var(--cardB);border-radius:16px;padding:22px 26px;backdrop-filter:blur(8px);animation:fadeUp .8s 500ms ease forwards, float 6s 2s ease-in-out infinite;opacity:0;position:relative;z-index:1;}
+.booking-card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
+.booking-label{font-size:11px;color:var(--muted);margin-bottom:3px;}
+.booking-title{font-family:'Syne',sans-serif;font-weight:700;font-size:18px;}
+.booking-status{background:rgba(30,144,255,.15);border:1px solid rgba(30,144,255,.3);border-radius:8px;padding:5px 13px;font-size:12px;color:var(--skyL);font-weight:600;}
+.booking-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:12px;}
+.booking-cell{background:rgba(255,255,255,.04);border-radius:8px;padding:9px 11px;}
+.booking-cell-label{font-size:10px;color:var(--muted);margin-bottom:3px;}
+.booking-cell-val{font-size:13px;font-weight:600;}
+.booking-split{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+.booking-split-label{font-size:11px;color:var(--muted);}
+.split-tag{border-radius:100px;padding:3px 9px;font-size:10px;font-weight:600;color:#fff;}
+
+/* ════════════════════════════════════════
+   STATS
+════════════════════════════════════════ */
+.stats-section{padding:50px clamp(1rem,4vw,3rem);border-top:1px solid var(--cardB);}
+.stats-grid{max-width:840px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:18px;}
+.stat-item{text-align:center;opacity:0;transform:translateY(20px);transition:all .5s ease;}
+.stat-item.visible{opacity:1;transform:translateY(0);}
+.stat-val{font-family:'Syne',sans-serif;font-weight:800;font-size:33px;color:var(--skyL);letter-spacing:-1px;}
+.stat-label{font-size:12px;color:var(--muted);margin-top:4px;}
+
+/* ════════════════════════════════════════
+   FEATURES
+════════════════════════════════════════ */
+.features-section{padding:70px clamp(1rem,4vw,3rem);}
+.section-inner{max-width:960px;margin:0 auto;}
+.section-head{text-align:center;margin-bottom:46px;}
+.section-tag{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;margin-bottom:9px;}
+.section-h2{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(1.6rem,3vw,2.3rem);letter-spacing:-.7px;}
+.section-sub{color:var(--muted);margin-top:10px;font-size:14px;max-width:420px;margin-left:auto;margin-right:auto;line-height:1.75;}
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.feat-card{background:var(--card);border:1px solid var(--cardB);border-radius:14px;padding:24px 20px;opacity:0;transform:translateY(24px);transition:all .55s ease;}
+.feat-card.visible{opacity:1;transform:translateY(0);}
+.feat-icon{font-size:24px;margin-bottom:10px;}
+.feat-title{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;margin-bottom:7px;}
+.feat-desc{font-size:12px;color:var(--muted);line-height:1.75;}
+
+/* ════════════════════════════════════════
+   HOW IT WORKS
+════════════════════════════════════════ */
+.how-section{padding:70px clamp(1rem,4vw,3rem);border-top:1px solid var(--cardB);}
+.steps-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;position:relative;margin-bottom:24px;}
+.steps-line{position:absolute;top:34px;left:12%;right:12%;height:1px;background:linear-gradient(90deg,var(--sky),var(--gold));opacity:.25;}
+.step-item{text-align:center;padding:0 6px;cursor:pointer;transition:all .3s ease;opacity:.45;}
+.step-item.active{opacity:1;transform:scale(1.04);}
+.step-num{width:50px;height:50px;border-radius:50%;margin:0 auto 14px;border:2px solid var(--cardB);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:13px;color:var(--muted);transition:all .3s ease;}
+.step-item.active .step-num{border-color:var(--sky);background:rgba(30,144,255,.18);color:var(--skyL);}
+.step-title{font-family:'Syne',sans-serif;font-weight:600;font-size:14px;margin-bottom:6px;}
+.step-desc{font-size:12px;color:var(--muted);line-height:1.75;}
+.dots{display:flex;justify-content:center;gap:8px;}
+.dot{width:10px;height:10px;border-radius:50%;cursor:pointer;transition:background .3s;background:var(--mutedD);}
+.dot.active{background:var(--sky);}
+
+/* ════════════════════════════════════════
+   CTA
+════════════════════════════════════════ */
+.cta-section{padding:0 clamp(1rem,4vw,3rem) 70px;}
+.cta-box{max-width:960px;margin:0 auto;background:linear-gradient(135deg,rgba(30,144,255,.18) 0%,rgba(10,22,40,.5) 100%);border:1px solid rgba(30,144,255,.25);border-radius:20px;padding:46px 42px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:22px;}
+.cta-h2{font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(1.3rem,3vw,1.85rem);letter-spacing:-.5px;margin-bottom:9px;}
+.cta-p{color:var(--muted);font-size:13px;max-width:440px;line-height:1.8;}
+.cta-btn{background:var(--sky);color:#fff;border-radius:12px;padding:14px 28px;font-size:14px;font-weight:600;white-space:nowrap;}
+
+/* ════════════════════════════════════════
+   FOOTER
+════════════════════════════════════════ */
+footer{border-top:1px solid var(--cardB);padding:26px clamp(1rem,4vw,3rem);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;max-width:960px;margin:0 auto;}
+.footer-logo{display:flex;align-items:center;gap:8px;}
+.footer-logo-icon{width:26px;height:26px;border-radius:6px;background:var(--sky);display:flex;align-items:center;justify-content:center;font-size:13px;}
+.footer-logo-text{font-family:'Syne',sans-serif;font-weight:700;font-size:15px;}
+.footer-copy{font-size:11px;color:var(--mutedD);text-align:center;}
+.footer-tag{font-size:11px;color:var(--mutedD);}
+
+/* ════════════════════════════════════════
+   MODAL OVERLAY
+════════════════════════════════════════ */
+.modal-overlay{position:fixed;inset:0;z-index:999;background:rgba(5,12,24,0.82);backdrop-filter:blur(10px);display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;pointer-events:none;transition:opacity .3s ease;}
+.modal-overlay.open{opacity:1;pointer-events:all;}
+
+.modal{width:100%;max-width:440px;background:var(--navyL);border:1px solid var(--cardB);border-radius:20px;padding:36px 36px 30px;position:relative;transform:scale(.94) translateY(20px);transition:transform .35s cubic-bezier(.34,1.56,.64,1);box-shadow:0 40px 80px rgba(0,0,0,.5);}
+.modal-overlay.open .modal{transform:scale(1) translateY(0);}
+
+.modal-close{position:absolute;top:16px;right:18px;background:rgba(255,255,255,.07);border:none;color:var(--muted);font-size:18px;cursor:pointer;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.modal-close:hover{background:rgba(255,255,255,.15);color:#fff;}
+
+/* Tabs */
+.modal-tabs{display:flex;background:rgba(255,255,255,.06);border-radius:10px;padding:4px;margin-bottom:24px;}
+.modal-tab{flex:1;padding:9px;text-align:center;font-size:14px;font-weight:600;cursor:pointer;border-radius:7px;transition:all .2s;color:var(--muted);}
+.modal-tab.active{background:var(--sky);color:#fff;}
+
+/* Header */
+.modal-brand{display:flex;align-items:center;justify-content:center;gap:9px;margin-bottom:5px;}
+.modal-brand-icon{width:36px;height:36px;border-radius:9px;background:var(--sky);display:flex;align-items:center;justify-content:center;font-size:18px;}
+.modal-brand-text{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;}
+.modal-subtitle{text-align:center;font-size:13px;color:var(--muted);margin-bottom:22px;}
+
+/* Form */
+.form-group{margin-bottom:14px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
+.form-label{display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;letter-spacing:.4px;text-transform:uppercase;}
+.form-input{width:100%;background:rgba(255,255,255,.06);border:1px solid var(--cardB);border-radius:10px;padding:11px 14px;font-size:14px;color:#fff;font-family:'DM Sans',sans-serif;transition:border-color .2s,box-shadow .2s;outline:none;}
+.form-input::placeholder{color:var(--mutedD);}
+.form-input:focus{border-color:var(--skyL);box-shadow:0 0 0 3px rgba(30,144,255,.15);}
+.form-input.err{border-color:var(--error);box-shadow:0 0 0 3px rgba(231,76,60,.12);}
+.form-input.ok{border-color:var(--success);box-shadow:0 0 0 3px rgba(39,174,96,.10);}
+
+.pw-wrap{position:relative;}
+.pw-wrap .form-input{padding-right:42px;}
+.pw-eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--mutedD);font-size:15px;transition:color .2s;padding:2px;}
+.pw-eye:hover{color:var(--skyL);}
+
+.field-err{font-size:11px;color:var(--error);margin-top:4px;display:none;}
+.field-err.show{display:block;}
+
+.forgot-row{display:flex;justify-content:flex-end;margin-top:-6px;margin-bottom:14px;}
+.forgot-link{font-size:12px;color:var(--skyL);cursor:pointer;}
+.forgot-link:hover{text-decoration:underline;}
+
+.form-submit{width:100%;background:var(--sky);color:#fff;border-radius:10px;padding:13px;font-size:15px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:2px;}
+.form-submit.loading{pointer-events:none;opacity:.8;}
+.spinner{width:17px;height:17px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:spin .75s linear infinite;display:none;}
+.form-submit.loading .spinner{display:inline-block;}
+.form-submit.loading .btn-lbl{display:none;}
+
+.divider{display:flex;align-items:center;gap:12px;margin:16px 0;}
+.divider-line{flex:1;height:1px;background:var(--cardB);}
+.divider-text{font-size:12px;color:var(--mutedD);}
+
+.social-btn{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--cardB);border-radius:10px;padding:11px;font-size:14px;color:#fff;font-weight:500;display:flex;align-items:center;justify-content:center;gap:9px;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;}
+.social-btn:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);}
+
+.strength-bar{height:4px;border-radius:2px;background:rgba(255,255,255,.08);margin-top:7px;overflow:hidden;}
+.strength-fill{height:100%;border-radius:2px;width:0;transition:width .4s,background .4s;}
+
+.terms-row{display:flex;align-items:flex-start;gap:9px;margin-bottom:14px;}
+.terms-chk{width:16px;height:16px;accent-color:var(--sky);margin-top:2px;flex-shrink:0;cursor:pointer;}
+.terms-txt{font-size:12px;color:var(--muted);line-height:1.6;}
+.terms-txt a{color:var(--skyL);cursor:pointer;}
+
+.switch-prompt{text-align:center;font-size:13px;color:var(--muted);margin-top:16px;}
+.switch-link{color:var(--skyL);cursor:pointer;font-weight:600;}
+.switch-link:hover{text-decoration:underline;}
+
+.shake{animation:shake .4s ease;}
+
+/* ════════════════════════════════════════
+   TOAST
+════════════════════════════════════════ */
+.toast{position:fixed;bottom:24px;right:24px;z-index:9999;background:var(--navyL);border:1px solid var(--cardB);border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:12px;font-size:14px;min-width:250px;transform:translateY(80px);opacity:0;transition:all .35s cubic-bezier(.34,1.56,.64,1);box-shadow:0 12px 32px rgba(0,0,0,.4);}
+.toast.show{transform:translateY(0);opacity:1;}
+.toast-icon{font-size:20px;}
+.toast-title{font-weight:600;margin-bottom:2px;}
+.toast-body{font-size:12px;color:var(--muted);}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════
+     NAV
+══════════════════════════ -->
+<nav id="nav">
+  <div class="nav-logo" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+    <div class="nav-logo-icon">✈</div>
+    <span class="nav-logo-text">GroupFly</span>
+  </div>
+  <div class="nav-links">
+    <a class="nl" href="#features">Features</a>
+    <a class="nl" href="#how-it-works">How it works</a>
+    <a class="nl" href="#about">About</a>
+  </div>
+  <div class="nav-actions">
+    <button class="glb nav-login" onclick="openModal('login')">Log In</button>
+    <button class="glb nav-cta"   onclick="openModal('signup')">Sign Up</button>
+  </div>
+</nav>
+
+<!-- ══════════════════════════
+     HERO
+══════════════════════════ -->
+<section class="hero">
+  <div class="hero-orb1"></div>
+  <div class="hero-orb2"></div>
+  <div class="seat-grid" id="seatGrid"></div>
+
+  <div class="hero-inner">
+    <div class="hero-badge fu fu-0">
+      <span class="hero-badge-dot"></span>
+      <span class="hero-badge-text">Group Booking Management System · ALM-II Project</span>
+    </div>
+    <h1 class="hero-h1 fu fu-1">
+      Airline Group Travel,<br>
+      <span class="grad">Simplified.</span>
+    </h1>
+    <p class="hero-p fu fu-2">
+      Create group reservations, manage passengers, allocate seats, and split payments — all from one centralized platform built for airline group travel.
+    </p>
+    <div class="hero-btns fu fu-3">
+      <button class="glb btn-primary" onclick="openModal('signup')">Start a group booking &nbsp;→</button>
+      <button class="glb btn-outline"  onclick="document.getElementById('how-it-works').scrollIntoView({behavior:'smooth'})">See how it works</button>
+    </div>
+  </div>
+
+  <div class="booking-card">
+    <div class="booking-card-top">
+      <div>
+        <div class="booking-label">Group booking</div>
+        <div class="booking-title">HYD → DEL &nbsp;·&nbsp; 24 Passengers</div>
+      </div>
+      <div class="booking-status">Confirmed ✓</div>
+    </div>
+    <div class="booking-grid">
+      <div class="booking-cell"><div class="booking-cell-label">Departure</div><div class="booking-cell-val">09:15 AM</div></div>
+      <div class="booking-cell"><div class="booking-cell-label">Arrival</div><div class="booking-cell-val">11:45 AM</div></div>
+      <div class="booking-cell"><div class="booking-cell-label">Total fare</div><div class="booking-cell-val">₹3,84,000</div></div>
+      <div class="booking-cell"><div class="booking-cell-label">Per pax</div><div class="booking-cell-val">₹16,000</div></div>
+    </div>
+    <div class="booking-split">
+      <div class="booking-split-label">Payment split:</div>
+      <span class="split-tag" style="background:#1E90FF;">Ravi</span>
+      <span class="split-tag" style="background:#4FABFF;">Priya</span>
+      <span class="split-tag" style="background:#F5A623;">Anjali</span>
+      <span class="split-tag" style="background:#4A6A94;">+21 more</span>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════
+     STATS
+══════════════════════════ -->
+<section class="stats-section" id="about">
+  <div class="stats-grid" id="statsGrid">
+    <div class="stat-item"><div class="stat-val">50+</div><div class="stat-label">Passengers per booking</div></div>
+    <div class="stat-item" style="transition-delay:100ms"><div class="stat-val">Split</div><div class="stat-label">Payment per traveler</div></div>
+    <div class="stat-item" style="transition-delay:200ms"><div class="stat-val">Auto</div><div class="stat-label">Seat allocation</div></div>
+    <div class="stat-item" style="transition-delay:300ms"><div class="stat-val">Live</div><div class="stat-label">Email notifications</div></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════
+     FEATURES
+══════════════════════════ -->
+<section class="features-section" id="features">
+  <div class="section-inner">
+    <div class="section-head">
+      <div class="section-tag" style="color:#1E90FF;">Features</div>
+      <h2 class="section-h2">Everything a group needs</h2>
+      <p class="section-sub">From first passenger to final invoice — manage the entire group journey in one place.</p>
+    </div>
+    <div class="features-grid" id="featGrid">
+      <div class="feat-card ch" style="border-top:2px solid #1E90FF;">
+        <div class="feat-icon">✈</div><div class="feat-title">Group Reservations</div>
+        <div class="feat-desc">Create and manage group bookings for 10 to 500+ passengers with a single streamlined workflow.</div>
+      </div>
+      <div class="feat-card ch" style="border-top:2px solid #4FABFF;transition-delay:80ms">
+        <div class="feat-icon">👥</div><div class="feat-title">Passenger Management</div>
+        <div class="feat-desc">Add, edit, or bulk-update passenger details. Smart validation catches errors before they happen.</div>
+      </div>
+      <div class="feat-card ch" style="border-top:2px solid #F5A623;transition-delay:160ms">
+        <div class="feat-icon">💺</div><div class="feat-title">Seat Allocation</div>
+        <div class="feat-desc">Automated seat assignment keeps groups together. Visual seat map for manual adjustments.</div>
+      </div>
+      <div class="feat-card ch" style="border-top:2px solid #1E90FF;transition-delay:240ms">
+        <div class="feat-icon">💳</div><div class="feat-title">Split Payments</div>
+        <div class="feat-desc">Divide the booking cost across multiple travelers. Each pays their share independently.</div>
+      </div>
+      <div class="feat-card ch" style="border-top:2px solid #FFD080;transition-delay:320ms">
+        <div class="feat-icon">📄</div><div class="feat-title">Invoice Generation</div>
+        <div class="feat-desc">Instant PDF invoices for the group or per passenger. Send directly via email.</div>
+      </div>
+      <div class="feat-card ch" style="border-top:2px solid #4FABFF;transition-delay:400ms">
+        <div class="feat-icon">📊</div><div class="feat-title">Booking History</div>
+        <div class="feat-desc">Full audit trail of every booking, modification, and payment across all group trips.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════
+     HOW IT WORKS
+══════════════════════════ -->
+<section class="how-section" id="how-it-works">
+  <div class="section-inner">
+    <div class="section-head">
+      <div class="section-tag" style="color:#F5A623;">Process</div>
+      <h2 class="section-h2">Four steps to lift-off</h2>
+    </div>
+    <div class="steps-grid">
+      <div class="steps-line"></div>
+      <div class="step-item active" onclick="setStep(0)">
+        <div class="step-num">01</div><div class="step-title">Create a group</div>
+        <div class="step-desc">Name your group, set travel dates and destination.</div>
+      </div>
+      <div class="step-item" onclick="setStep(1)">
+        <div class="step-num">02</div><div class="step-title">Add passengers</div>
+        <div class="step-desc">Bulk import or add travelers one by one with full details.</div>
+      </div>
+      <div class="step-item" onclick="setStep(2)">
+        <div class="step-num">03</div><div class="step-title">Allocate seats</div>
+        <div class="step-desc">Auto-assign or use the seat map to place everyone.</div>
+      </div>
+      <div class="step-item" onclick="setStep(3)">
+        <div class="step-num">04</div><div class="step-title">Split &amp; pay</div>
+        <div class="step-desc">Each member pays their share. Booking confirms automatically.</div>
+      </div>
+    </div>
+    <div class="dots" id="dots">
+      <div class="dot active" onclick="setStep(0)"></div>
+      <div class="dot" onclick="setStep(1)"></div>
+      <div class="dot" onclick="setStep(2)"></div>
+      <div class="dot" onclick="setStep(3)"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════
+     CTA
+══════════════════════════ -->
+<section class="cta-section">
+  <div class="cta-box">
+    <div>
+      <h2 class="cta-h2">Ready to take your group aboard?</h2>
+      <p class="cta-p">No more spreadsheets or manual coordination. GroupFly handles everything — from passenger details to split payments.</p>
+    </div>
+    <button class="glb cta-btn" onclick="openModal('signup')">Create a group booking &nbsp;✈</button>
+  </div>
+</section>
+
+<!-- ══════════════════════════
+     FOOTER
+══════════════════════════ -->
+<footer>
+  <div class="footer-logo">
+    <div class="footer-logo-icon">✈</div>
+    <span class="footer-logo-text">GroupFly</span>
+  </div>
+  <p class="footer-copy">Group Booking Management System · ALM-II Project · Roll No: 2520030349</p>
+  <p class="footer-tag">Built with HTML &amp; CSS</p>
+</footer>
+
+<!-- ══════════════════════════
+     LOGIN / SIGNUP MODAL
+══════════════════════════ -->
+<div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
+  <div class="modal" id="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+
+    <div class="modal-brand">
+      <div class="modal-brand-icon">✈</div>
+      <span class="modal-brand-text">GroupFly</span>
+    </div>
+    <p class="modal-subtitle" id="modalSub">Welcome back! Sign in to your account.</p>
+
+    <div class="modal-tabs">
+      <div class="modal-tab active" id="tabLogin"  onclick="switchTab('login')">Log In</div>
+      <div class="modal-tab"        id="tabSignup" onclick="switchTab('signup')">Sign Up</div>
+    </div>
+
+    <!-- LOGIN FORM -->
+    <form id="loginForm" onsubmit="handleLogin(event)">
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input class="form-input" id="lEmail" type="email" placeholder="you@example.com" autocomplete="email"/>
+        <div class="field-err" id="lEmailErr">Please enter a valid email address.</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <div class="pw-wrap">
+          <input class="form-input" id="lPass" type="password" placeholder="Your password" autocomplete="current-password"/>
+          <button type="button" class="pw-eye" onclick="togglePw('lPass',this)">👁</button>
+        </div>
+        <div class="field-err" id="lPassErr">Password must be at least 6 characters.</div>
+      </div>
+      <div class="forgot-row">
+        <a class="forgot-link" onclick="showToast('info','Reset link sent!','Check your email for password reset instructions.')">Forgot password?</a>
+      </div>
+      <button type="submit" class="glb form-submit" id="loginBtn">
+        <span class="btn-lbl">Sign In &nbsp;→</span>
+        <div class="spinner"></div>
+      </button>
+      <div class="divider"><div class="divider-line"></div><span class="divider-text">or continue with</span><div class="divider-line"></div></div>
+      <button type="button" class="social-btn glb" onclick="socialLogin('Google')">
+        <svg width="17" height="17" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84z"/></svg>
+        Continue with Google
+      </button>
+      <div class="switch-prompt">Don't have an account? <span class="switch-link" onclick="switchTab('signup')">Sign up free</span></div>
+    </form>
+
+    <!-- SIGNUP FORM -->
+    <form id="signupForm" style="display:none" onsubmit="handleSignup(event)">
+      <div class="form-row">
+        <div>
+          <label class="form-label">First Name</label>
+          <input class="form-input" id="sFirst" type="text" placeholder="Ravi" autocomplete="given-name"/>
+          <div class="field-err" id="sFirstErr">First name is required.</div>
+        </div>
+        <div>
+          <label class="form-label">Last Name</label>
+          <input class="form-input" id="sLast" type="text" placeholder="Kumar" autocomplete="family-name"/>
+          <div class="field-err" id="sLastErr">Last name is required.</div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email Address</label>
+        <input class="form-input" id="sEmail" type="email" placeholder="ravi@example.com" autocomplete="email"/>
+        <div class="field-err" id="sEmailErr">Please enter a valid email address.</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <div class="pw-wrap">
+          <input class="form-input" id="sPass" type="password" placeholder="Create a strong password" oninput="checkStrength(this.value)"/>
+          <button type="button" class="pw-eye" onclick="togglePw('sPass',this)">👁</button>
+        </div>
+        <div class="strength-bar"><div class="strength-fill" id="sFill"></div></div>
+        <div class="field-err" id="sPassErr">Password must be at least 8 characters.</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Confirm Password</label>
+        <div class="pw-wrap">
+          <input class="form-input" id="sConfirm" type="password" placeholder="Repeat your password"/>
+          <button type="button" class="pw-eye" onclick="togglePw('sConfirm',this)">👁</button>
+        </div>
+        <div class="field-err" id="sConfirmErr">Passwords do not match.</div>
+      </div>
+      <div class="terms-row">
+        <input type="checkbox" class="terms-chk" id="termsChk"/>
+        <label for="termsChk" class="terms-txt">I agree to the <a>Terms of Service</a> and <a>Privacy Policy</a></label>
+      </div>
+      <button type="submit" class="glb form-submit" id="signupBtn">
+        <span class="btn-lbl">Create Account &nbsp;→</span>
+        <div class="spinner"></div>
+      </button>
+      <div class="divider"><div class="divider-line"></div><span class="divider-text">or continue with</span><div class="divider-line"></div></div>
+      <button type="button" class="social-btn glb" onclick="socialLogin('Google')">
+        <svg width="17" height="17" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84z"/></svg>
+        Continue with Google
+      </button>
+      <div class="switch-prompt">Already have an account? <span class="switch-link" onclick="switchTab('login')">Log in</span></div>
+    </form>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="toast-icon" id="toastIcon">✅</div>
+  <div class="toast-msg">
+    <div class="toast-title" id="toastTitle"></div>
+    <div class="toast-body"  id="toastBody"></div>
+  </div>
+</div>
+
+<script>
+/* ── Navbar ── */
+window.addEventListener('scroll',()=>{
+  document.getElementById('nav').classList.toggle('scrolled',window.scrollY>30);
+});
+
+/* ── Seat grid ── */
+const filled=new Set([2,3,5,7,9,11,14,17,19,22,25,27]);
+const sg=document.getElementById('seatGrid');
+for(let i=0;i<30;i++){
+  const s=document.createElement('div');
+  s.className='seat '+(filled.has(i)?'filled':'empty');
+  if(filled.has(i)) s.style.animation=`seatPop .4s ${i*55}ms ease both`;
+  sg.appendChild(s);
+}
+
+/* ── IntersectionObserver ── */
+const io=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting) e.target.querySelectorAll('.stat-item,.feat-card').forEach(el=>el.classList.add('visible'));
+  });
+},{threshold:.12});
+io.observe(document.getElementById('statsGrid'));
+io.observe(document.getElementById('featGrid'));
+
+/* ── Steps ── */
+let activeStep=0;
+let stepTimer=setInterval(()=>setStep((activeStep+1)%4),2400);
+function setStep(n){
+  activeStep=n;
+  document.querySelectorAll('.step-item').forEach((el,i)=>el.classList.toggle('active',i===n));
+  document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('active',i===n));
+}
+document.querySelectorAll('.step-item,.dot').forEach(el=>{
+  el.addEventListener('click',()=>{
+    clearInterval(stepTimer);
+    stepTimer=setInterval(()=>setStep((activeStep+1)%4),2400);
+  });
+});
+
+/* ══════════════════════
+   MODAL
+══════════════════════ */
+function openModal(tab){
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow='hidden';
+  switchTab(tab||'login');
+}
+function closeModal(){
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow='';
+  resetForms();
+}
+function handleOverlayClick(e){
+  if(e.target===document.getElementById('modalOverlay')) closeModal();
+}
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
+
+function switchTab(tab){
+  const isLogin=tab==='login';
+  document.getElementById('tabLogin').classList.toggle('active',isLogin);
+  document.getElementById('tabSignup').classList.toggle('active',!isLogin);
+  document.getElementById('loginForm').style.display=isLogin?'':'none';
+  document.getElementById('signupForm').style.display=isLogin?'none':'';
+  document.getElementById('modalSub').textContent=isLogin
+    ?'Welcome back! Sign in to your account.'
+    :'Create your account and start booking.';
+  resetForms();
+}
+
+function resetForms(){
+  document.querySelectorAll('.form-input').forEach(el=>{
+    el.value=''; el.classList.remove('err','ok');
+  });
+  document.querySelectorAll('.field-err').forEach(el=>el.classList.remove('show'));
+  const f=document.getElementById('sFill');
+  if(f){f.style.width='0';f.style.background='';}
+}
+
+/* ── Toggle password ── */
+function togglePw(id,btn){
+  const inp=document.getElementById(id);
+  const show=inp.type==='password';
+  inp.type=show?'text':'password';
+  btn.textContent=show?'🙈':'👁';
+}
+
+/* ── Password strength ── */
+function checkStrength(val){
+  const f=document.getElementById('sFill');
+  let s=0;
+  if(val.length>=8) s++;
+  if(/[A-Z]/.test(val)) s++;
+  if(/[0-9]/.test(val)) s++;
+  if(/[^A-Za-z0-9]/.test(val)) s++;
+  f.style.width=(s/4*100)+'%';
+  f.style.background=['','#E74C3C','#F5A623','#F5A623','#27AE60'][s]||'';
+}
+
+/* ── Validation helpers ── */
+function setFld(inpId,errId,bad){
+  const inp=document.getElementById(inpId);
+  const err=document.getElementById(errId);
+  inp.classList.toggle('err',bad);
+  inp.classList.toggle('ok',!bad&&inp.value.length>0);
+  err.classList.toggle('show',bad);
+  return !bad;
+}
+function isEmail(v){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);}
+
+/* ── Login ── */
+function handleLogin(e){
+  e.preventDefault();
+  const email=document.getElementById('lEmail').value.trim();
+  const pass=document.getElementById('lPass').value;
+  let ok=true;
+  ok=setFld('lEmail','lEmailErr',!isEmail(email))&&ok;
+  ok=setFld('lPass','lPassErr',pass.length<6)&&ok;
+  if(!ok){shakeModal();return;}
+  const btn=document.getElementById('loginBtn');
+  btn.classList.add('loading');
+  setTimeout(()=>{
+    btn.classList.remove('loading');
+    closeModal();
+    showToast('success','Signed in!',`Welcome back, ${email.split('@')[0]}!`);
+  },1800);
+}
+
+/* ── Signup ── */
+function handleSignup(e){
+  e.preventDefault();
+  const first=document.getElementById('sFirst').value.trim();
+  const last=document.getElementById('sLast').value.trim();
+  const email=document.getElementById('sEmail').value.trim();
+  const pass=document.getElementById('sPass').value;
+  const confirm=document.getElementById('sConfirm').value;
+  const terms=document.getElementById('termsChk').checked;
+  let ok=true;
+  ok=setFld('sFirst','sFirstErr',first.length<1)&&ok;
+  ok=setFld('sLast','sLastErr',last.length<1)&&ok;
+  ok=setFld('sEmail','sEmailErr',!isEmail(email))&&ok;
+  ok=setFld('sPass','sPassErr',pass.length<8)&&ok;
+  ok=setFld('sConfirm','sConfirmErr',pass!==confirm||!confirm)&&ok;
+  if(!terms){shakeModal();showToast('error','Terms required','Please accept the Terms of Service.');return;}
+  if(!ok){shakeModal();return;}
+  const btn=document.getElementById('signupBtn');
+  btn.classList.add('loading');
+  setTimeout(()=>{
+    btn.classList.remove('loading');
+    closeModal();
+    showToast('success','Account created!',`Welcome aboard, ${first}! Your account is ready.`);
+  },1800);
+}
+
+/* ── Social ── */
+function socialLogin(p){showToast('info',p+' sign-in','Redirecting to '+p+'…');}
+
+/* ── Shake ── */
+function shakeModal(){
+  const m=document.getElementById('modal');
+  m.classList.remove('shake');void m.offsetWidth;m.classList.add('shake');
+}
+
+/* ══════════════════════
+   TOAST
+══════════════════════ */
+let toastTimer;
+function showToast(type,title,body){
+  const icons={success:'✅',error:'❌',info:'ℹ️'};
+  document.getElementById('toastIcon').textContent=icons[type]||'ℹ️';
+  document.getElementById('toastTitle').textContent=title;
+  document.getElementById('toastBody').textContent=body;
+  const t=document.getElementById('toast');
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),3800);
+}
+</script>
+</body>
+</html>
