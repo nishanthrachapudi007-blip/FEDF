@@ -1,0 +1,35 @@
+.title { font-family:'Syne',sans-serif;font-size:26px;font-weight:800; }
+.sub   { color:var(--muted);font-size:14px;margin-top:2px;margin-bottom:24px; }
+
+.summary {
+  display:flex;flex-wrap:wrap;gap:0;
+  background:var(--navyM);border:1px solid var(--cardB);border-radius:14px;
+  margin-bottom:16px;overflow:hidden;
+}
+.summaryItem {
+  flex:1;min-width:120px;padding:16px 22px;
+  border-right:1px solid var(--cardB);
+  display:flex;flex-direction:column;gap:4px;
+}
+.summaryItem:last-child { border-right:none; }
+.summaryItem span   { font-size:11px;color:var(--mutedD);text-transform:uppercase;letter-spacing:.5px; }
+.summaryItem strong { font-size:18px;font-weight:700; }
+
+.progressBar { height:6px;background:rgba(255,255,255,.08);border-radius:4px;margin-bottom:32px;overflow:hidden; }
+.progressFill { height:100%;background:linear-gradient(90deg,var(--sky),var(--success));border-radius:4px;transition:width .6s ease; }
+
+.bookingGroup { margin-bottom:24px; }
+.groupHeader  { display:flex;justify-content:space-between;align-items:center;margin-bottom:10px; }
+.groupName    { font-weight:600;font-size:15px; }
+.groupRoute   { color:var(--muted);font-size:13px; }
+.groupTotal   { color:var(--gold);font-size:14px;font-weight:600; }
+
+.table { background:var(--navyM);border:1px solid var(--cardB);border-radius:14px;overflow:hidden; }
+.thead { display:grid;grid-template-columns:2fr 0.8fr 1fr 1.2fr 1.4fr;padding:11px 20px;background:rgba(255,255,255,.03);font-size:11px;color:var(--mutedD);text-transform:uppercase;letter-spacing:.5px; }
+.row   { display:grid;grid-template-columns:2fr 0.8fr 1fr 1.2fr 1.4fr;padding:12px 20px;border-top:1px solid rgba(255,255,255,.04);font-size:13px;align-items:center; }
+.name  { font-weight:600; }
+.seat  { font-family:monospace;color:var(--gold); }
+.empty { padding:20px;text-align:center;color:var(--mutedD);font-size:13px; }
+
+.payBtn   { background:rgba(39,174,96,.2);color:#4ade80;padding:5px 12px;border-radius:7px;font-size:12px;font-weight:600;border:1px solid rgba(39,174,96,.3);display:flex;align-items:center;gap:4px; }
+.unpayBtn { background:rgba(245,166,35,.15);color:#fbbf24;padding:5px 12px;border-radius:7px;font-size:12px;font-weight:600;border:1px solid rgba(245,166,35,.3); }

@@ -1,0 +1,102 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --navy:   #0A1628;
+  --navyM:  #0D1F3C;
+  --navyL:  #162847;
+  --sky:    #1E90FF;
+  --skyL:   #4FABFF;
+  --skyG:   #7BC8FF;
+  --gold:   #F5A623;
+  --goldL:  #FFD080;
+  --white:  #fff;
+  --muted:  #8BA4C8;
+  --mutedD: #4A6A94;
+  --card:   rgba(255,255,255,0.05);
+  --cardB:  rgba(255,255,255,0.10);
+  --success:#27AE60;
+  --error:  #E74C3C;
+  --warning:#F5A623;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', 'Segoe UI', sans-serif;
+  background: var(--navy);
+  color: var(--white);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--navy); }
+::-webkit-scrollbar-thumb { background: var(--mutedD); border-radius: 3px; }
+
+/* ── Animations ── */
+@keyframes fadeUp    { from { opacity:0; transform:translateY(24px); } to { opacity:1; transform:translateY(0); } }
+@keyframes float     { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-8px); } }
+@keyframes pulse     { 0%,100% { opacity:.5; } 50% { opacity:1; } }
+@keyframes spin      { to { transform:rotate(360deg); } }
+@keyframes shake     { 0%,100% { transform:translateX(0); } 20%,60% { transform:translateX(-5px); } 40%,80% { transform:translateX(5px); } }
+@keyframes seatPop   { 0% { transform:scale(0); opacity:0; } 70% { transform:scale(1.2); } 100% { transform:scale(1); opacity:1; } }
+@keyframes slideIn   { from { opacity:0; transform:translateX(20px); } to { opacity:1; transform:translateX(0); } }
+@keyframes toastIn   { from { opacity:0; transform:translateY(80px); } to { opacity:1; transform:translateY(0); } }
+
+.fu { animation: fadeUp .6s ease both; }
+
+/* ── Shared button base ── */
+button { font-family: 'DM Sans', sans-serif; cursor: pointer; border: none; transition: all .2s ease; }
+button:hover { filter: brightness(1.1); transform: translateY(-1px); }
+button:active { transform: translateY(0); }
+
+/* ── Card hover ── */
+.ch { transition: transform .25s ease, box-shadow .25s ease; }
+.ch:hover { transform: translateY(-4px); box-shadow: 0 16px 32px rgba(30,144,255,.14); }
+
+/* ── Links ── */
+a { color: var(--skyL); text-decoration: none; transition: color .2s; }
+a:hover { color: #fff; }
+
+/* ── Form inputs ── */
+.form-input {
+  width: 100%;
+  background: rgba(255,255,255,.06);
+  border: 1px solid var(--cardB);
+  border-radius: 10px;
+  padding: 11px 14px;
+  font-size: 14px;
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  outline: none;
+  transition: border-color .2s, box-shadow .2s;
+}
+.form-input::placeholder { color: var(--mutedD); }
+.form-input:focus { border-color: var(--skyL); box-shadow: 0 0 0 3px rgba(30,144,255,.15); }
+.form-input.err { border-color: var(--error); }
+.form-input.ok  { border-color: var(--success); }
+select.form-input option { background: var(--navyL); }
+
+/* ── Spinner ── */
+.spinner {
+  width: 18px; height: 18px;
+  border: 2px solid rgba(255,255,255,.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin .75s linear infinite;
+  display: inline-block;
+}
+
+/* ── Status badges ── */
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .3px;
+}
+.badge-confirmed { background: rgba(39,174,96,.18); color: #4ade80; border: 1px solid rgba(39,174,96,.3); }
+.badge-pending   { background: rgba(245,166,35,.15); color: #fbbf24; border: 1px solid rgba(245,166,35,.3); }
+.badge-failed    { background: rgba(231,76,60,.15);  color: #f87171; border: 1px solid rgba(231,76,60,.3); }
+.badge-paid      { background: rgba(39,174,96,.18); color: #4ade80; border: 1px solid rgba(39,174,96,.3); }

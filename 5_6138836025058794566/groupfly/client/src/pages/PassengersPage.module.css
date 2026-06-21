@@ -1,0 +1,14 @@
+.header { display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;gap:16px; }
+.title  { font-family:'Syne',sans-serif;font-size:26px;font-weight:800; }
+.sub    { color:var(--muted);font-size:14px;margin-top:2px; }
+.search { max-width:260px; }
+
+.table { background:var(--navyM);border:1px solid var(--cardB);border-radius:14px;overflow:hidden; }
+.thead { display:grid;grid-template-columns:2fr 2.5fr 2fr 0.8fr 1fr 1.2fr;padding:12px 20px;background:rgba(255,255,255,.03);font-size:11px;color:var(--mutedD);text-transform:uppercase;letter-spacing:.5px; }
+.row   { display:grid;grid-template-columns:2fr 2.5fr 2fr 0.8fr 1fr 1.2fr;padding:13px 20px;border-top:1px solid rgba(255,255,255,.04);font-size:13px;align-items:center;cursor:pointer;transition:background .15s; }
+.row:hover { background:rgba(255,255,255,.03); }
+.name    { font-weight:600; }
+.email   { color:var(--muted);font-size:12px; }
+.booking { color:var(--skyL);font-size:12px; }
+.seat    { font-family:monospace;color:var(--gold); }
+.empty   { padding:32px;text-align:center;color:var(--mutedD);font-size:13px; }

@@ -1,0 +1,46 @@
+.back  { background:transparent;color:var(--muted);font-size:13px;margin-bottom:20px;padding:6px 0; }
+.back:hover { color:#fff;filter:none;transform:none; }
+.title { font-family:'Syne',sans-serif;font-size:24px;font-weight:800; }
+.sub   { color:var(--skyL);font-size:14px;margin-top:4px;margin-bottom:20px; }
+
+.legend { display:flex;gap:18px;margin-bottom:24px; }
+.legendItem { display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted); }
+.dot { width:12px;height:12px;border-radius:3px;display:inline-block; }
+
+.plane {
+  background:var(--navyM);border:1px solid var(--cardB);border-radius:20px;
+  padding:24px 32px;display:inline-block;max-width:100%;overflow-x:auto;
+}
+.cockpit { text-align:center;color:var(--muted);font-size:13px;margin-bottom:16px;letter-spacing:1px; }
+
+.cols { display:flex;align-items:center;gap:6px;margin-bottom:8px;padding-left:28px; }
+.colLabel { width:32px;text-align:center;font-size:11px;color:var(--mutedD);letter-spacing:.5px; }
+
+.seatRow { display:flex;align-items:center;gap:6px;margin-bottom:6px; }
+.rowNum  { width:22px;font-size:11px;color:var(--mutedD);text-align:right;flex-shrink:0; }
+.aisle   { width:16px; }
+
+.seat {
+  width:32px;height:32px;border-radius:6px 6px 4px 4px;
+  font-size:11px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s;cursor:pointer;
+  border:none;
+}
+.seat:hover { transform:scale(1.15); filter:brightness(1.2); }
+
+.free    { background:rgba(255,255,255,.08);color:var(--mutedD); }
+.paid    { background:rgba(39,174,96,.35);color:#4ade80; }
+.pending { background:rgba(245,166,35,.3);color:#fbbf24; }
+.failed  { background:rgba(231,76,60,.3);color:#f87171; }
+.selectedSeat { outline:2px solid #fff;outline-offset:2px; }
+
+.paxCard {
+  margin-top:24px;
+  background:var(--navyM);border:1px solid var(--cardB);border-radius:14px;
+  padding:18px 22px;
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  font-size:13px;animation:slideIn .25s ease;
+}
+.paxCard strong { font-size:15px; }
+.paxCard span { color:var(--muted); }

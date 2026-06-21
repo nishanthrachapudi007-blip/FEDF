@@ -1,0 +1,47 @@
+.header { display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; }
+.title  { font-family:'Syne',sans-serif; font-size:26px; font-weight:800; }
+.sub    { color:var(--muted); font-size:14px; margin-top:2px; }
+.newBtn { background:var(--sky); color:#fff; padding:10px 20px; border-radius:10px; font-size:14px; font-weight:600; }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  gap: 18px;
+}
+
+.card {
+  background: var(--navyM);
+  border: 1px solid var(--cardB);
+  border-radius: 16px;
+  padding: 20px;
+  cursor: pointer;
+}
+.cardTop { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+.del { background:transparent; color:var(--mutedD); font-size:14px; padding:4px 6px; border-radius:6px; }
+.del:hover { background:rgba(231,76,60,.15); color:var(--error); filter:none; transform:none; }
+
+.route { font-family:'Syne',sans-serif; font-size:22px; font-weight:800; letter-spacing:-0.5px; }
+.route span { color:var(--sky); }
+.groupName { font-size:14px; color:var(--muted); margin-top:4px; margin-bottom:14px; }
+.meta { display:flex; gap:16px; font-size:12px; color:var(--mutedD); margin-bottom:10px; }
+.fare { font-size:18px; font-weight:700; color:var(--gold); }
+
+.empty { grid-column:1/-1; text-align:center; color:var(--mutedD); padding:48px; }
+
+/* Modal */
+.overlay {
+  position:fixed; inset:0; background:rgba(0,0,0,.6); backdrop-filter:blur(4px);
+  display:flex; align-items:center; justify-content:center; z-index:500; padding:16px;
+}
+.modal {
+  background:var(--navyL); border:1px solid var(--cardB); border-radius:20px;
+  padding:28px; width:100%; max-width:480px;
+  animation: fadeUp .3s ease;
+}
+.modalTitle { font-family:'Syne',sans-serif; font-size:20px; font-weight:800; margin-bottom:20px; }
+.form  { display:flex; flex-direction:column; gap:12px; }
+.row   { display:flex; gap:10px; }
+.label { display:block; font-size:11px; color:var(--mutedD); margin-bottom:4px; text-transform:uppercase; letter-spacing:.5px; }
+.actions { display:flex; gap:10px; margin-top:4px; }
+.cancel { flex:1; background:rgba(255,255,255,.06); color:var(--muted); padding:11px; border-radius:10px; font-size:14px; }
+.save   { flex:2; background:var(--sky); color:#fff; padding:11px; border-radius:10px; font-size:14px; font-weight:600; display:flex; align-items:center; justify-content:center; }
